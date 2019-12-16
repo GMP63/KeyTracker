@@ -6,13 +6,13 @@ The purpose of this simple excercise is to provide a way to keep track of differ
 
 ## Build and run
 ### How to build tracker
-Download this repo. In its root directory you will see a Makefile. Positioned inside this directory (folder), open the console and then type the following:
-$ make release all
+Download this repo. In its root directory you will see a Makefile. Positioned inside this root directory (project root folder), open the console and then type the following:
+$ **make release all**
 
-This performs two builds, the application (./bin/tracker) and the unit test (./test/bin/test). After the two successful builds, the console should show the progression and the timing of the tests, and finally, the total of the test passed ok.
+This performs two builds, the `application` (./bin/tracker) and the `unit test` (./test/bin/test). After the two successful builds, the console should show the progression and the timing of the tests, and finally, the total of the test passed ok.
 
 ### How to run the tests further times
-As commented above, immediately after a successful build a test suit is run as a final part of the mentioned build. If you want to run the test again, then type:
+As commented above, immediately after a successful build a test suite is run as a final part of the mentioned build. If you want to run the test again, then type:
 $ ./test/bin/test
 
 ## Further builds
