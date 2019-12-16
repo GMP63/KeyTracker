@@ -55,7 +55,7 @@ void MapManager::addOrUpdateKey(const std::string& key, const std::string& url, 
     unsigned long lowestInTopRank = (pFrequencyMap->empty() ? 1L : pFrequencyMap->begin()->first);
     unsigned int actualSize = pFrequencyMap->size();
     if (orderNo <= lowestInTopRank && actualSize >= maxReportElementNumber)
-    {   // It is really not worth insertion but then later deletion by size maintenance.
+    {   // It is really not worth inserting but then later deleting by size maintenance.
         writingData = 0;
         mapCondition.notify_one();
         return;
@@ -85,7 +85,7 @@ void MapManager::addOrUpdateKey(const std::string& key, const std::string& url, 
     pFrequencyMap->insert({orderNo, std::string(key)});
 
     while (pFrequencyMap->size() > maxReportElementNumber)
-    {                                      // Size maintainance that keep reduced and constant the size of this map.
+    {                                      // Size maintainance that keeps this map's size constant.
         ulongstrIterator itRanking = pFrequencyMap->begin();
         pFrequencyMap->erase(itRanking++);
     }
