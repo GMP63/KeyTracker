@@ -26,7 +26,7 @@ void queue_KeyBurst(ThreadedMessageQueue& q)
 
 void waitForQueueEmpty(ThreadedMessageQueue& q)
 {
-    std::cout << "Waiting queue to get empty.\n";
+    std::cout << "Waiting for queue to be empty.\n";
     unsigned int i = 0;
     while (! q.empty())
     {

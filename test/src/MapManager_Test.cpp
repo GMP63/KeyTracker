@@ -33,25 +33,25 @@ void mapmanager_backupTest(MapManager& mgr)
 {
     std::cout << "Performing data backup ...." << '\n';
     clock_t finish = 0, start = clock();
-    mgr.backupRequest("Keys.csv", "Frecuencies.csv");
+    mgr.backupRequest("Keys.csv", "Frequencies.csv");
     finish = clock();
-    std::cout << "Backup done. It spent "
+    std::cout << "Backup done. It took "
               << ((finish - start) / CLOCKS_PER_MILLISEC)
               << " mSec\n" << std::endl;
 }
 
 size_t mapmanager_rankingTest(MapManager& mgr)
 {
-    IMapManager::KeyFrecuencyVector vecResults;
+    IMapManager::KeyFrequencyVector vecResults;
     mgr.getTopHotkeys(vecResults);
 
-    std::cout << "Most Frecuent Keys" << '\n'
+    std::cout << "Most Frequent Keys" << '\n'
               << "==================" << "\n"
-              << "Key            , Frecuency\n";
+              << "Key            , Frequency\n";
 
     for(int i = 0; i < vecResults.size(); i++)
     {
-        std::cout << vecResults[i].key << ", " << vecResults[i].frecuency << '\n';
+        std::cout << vecResults[i].key << ", " << vecResults[i].frequency << '\n';
     }
     std::cout << "\nTotal non repeated keys: " << mgr.getTotalKeyNumber() << "\n\n";
 
@@ -166,7 +166,7 @@ void mapmanager_functionalTest(TEST_REF)
     EXPECT_TRUE(m.isHotKey("DDDDDDDDDD"));
     EXPECT_EQ(m.getTotalKeyNumber(), 26);
 
-    IMapManager::KeyFrecuencyVector v;
+    IMapManager::KeyFrequencyVector v;
 
     m.getTopHotkeys(v);
     EXPECT_EQ(m.getTopKeyReportActualSize(), 24);
@@ -176,10 +176,10 @@ void mapmanager_functionalTest(TEST_REF)
     EXPECT_EQ(v[2].key, std::string("CCCCCCCCCC"));
     EXPECT_EQ(v[3].key, std::string("DDDDDDDDDD"));
 
-    EXPECT_EQ(std::stoi(v[0].frecuency), 9);
-    EXPECT_EQ(std::stoi(v[1].frecuency), 8);
-    EXPECT_EQ(std::stoi(v[2].frecuency), 6);
-    EXPECT_EQ(std::stoi(v[3].frecuency), 4);
+    EXPECT_EQ(std::stoi(v[0].frequency), 9);
+    EXPECT_EQ(std::stoi(v[1].frequency), 8);
+    EXPECT_EQ(std::stoi(v[2].frequency), 6);
+    EXPECT_EQ(std::stoi(v[3].frequency), 4);
 }
 
 void MapManagerTests(TEST_REF, MapManager& mm)

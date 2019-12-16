@@ -13,20 +13,20 @@
 
 MapManager::MapManager()
     :   baseReportElementNumber(DEFAULTTopKey), maxReportElementNumber(MAXTopKey),
-        pKeyMap(new strdetailsMap), pFrecuencyMap(new ulongstrMap), writingData(0)
+        pKeyMap(new strdetailsMap), pFrequencyMap(new ulongstrMap), writingData(0)
 {
 }
 
 MapManager::MapManager(unsigned int n, unsigned int m /* = 0 */)
     :   baseReportElementNumber(n), maxReportElementNumber(m > n + 4 ? m : n + 4),
-        pKeyMap(new strdetailsMap), pFrecuencyMap(new ulongstrMap), writingData(0)
+        pKeyMap(new strdetailsMap), pFrequencyMap(new ulongstrMap), writingData(0)
 {
 }
 
 MapManager::~MapManager()
 {
     if (pKeyMap)       delete pKeyMap;
-    if (pFrecuencyMap) delete pFrecuencyMap;
+    if (pFrequencyMap) delete pFrequencyMap;
 }
 
 void MapManager::addOrUpdateKey(const std::string& key, const std::string& url, unsigned int nPort)
@@ -42,9 +42,9 @@ void MapManager::addOrUpdateKey(const std::string& key, const std::string& url, 
 
     if (itKeys != itKeyEnd)
     {
-        if(itKeys->first.compare(key) == 0) // key found! Just increment the frecuency count
+        if(itKeys->first.compare(key) == 0) // key found! Just increment the frequency count
         {
-            prevOrderNo = itKeys->second.frecuency;
+            prevOrderNo = itKeys->second.frequency;
 //          std::cerr << "debug. Found Key " << key << "  " << prevOrderNo << " times.\n";
             orderNo = 1 + prevOrderNo;
         }
@@ -52,8 +52,8 @@ void MapManager::addOrUpdateKey(const std::string& key, const std::string& url, 
     // search shortened by hint (itKeys).
     pKeyMap->insert_or_assign( itKeys, std::string(key), KeyDetails(url, nPort, orderNo) );
 
-    unsigned long lowestInTopRank = (pFrecuencyMap->empty() ? 1L : pFrecuencyMap->begin()->first);
-    unsigned int actualSize = pFrecuencyMap->size();
+    unsigned long lowestInTopRank = (pFrequencyMap->empty() ? 1L : pFrequencyMap->begin()->first);
+    unsigned int actualSize = pFrequencyMap->size();
     if (orderNo <= lowestInTopRank && actualSize >= maxReportElementNumber)
     {   // It is really not worth insertion but then later deletion by size maintenance.
         writingData = 0;
@@ -61,14 +61,14 @@ void MapManager::addOrUpdateKey(const std::string& key, const std::string& url, 
         return;
     }
 
-    // Search, delete and insert on the frecuency map.
+    // Search, delete and insert on the frequency map.
 
     if (prevOrderNo > 0) // if this key is already present in the ranking, the old record must be removed
     {
-        ulongstrIterator itRanking = pFrecuencyMap->find(prevOrderNo);
-        ulongstrIterator itRankingEnd = pFrecuencyMap->end();
+        ulongstrIterator itRanking = pFrequencyMap->find(prevOrderNo);
+        ulongstrIterator itRankingEnd = pFrequencyMap->end();
 
-        while ( itRanking != itRankingEnd &&  // frecuency number found in frecuency table and ...
+        while ( itRanking != itRankingEnd &&  // frequency number found in frequency table and ...
                 itRanking->second != key && itRanking->first == prevOrderNo )
         {
             ++itRanking;
@@ -76,18 +76,18 @@ void MapManager::addOrUpdateKey(const std::string& key, const std::string& url, 
 
         if (itRanking != itRankingEnd && itRanking->first == prevOrderNo)
         {
-            pFrecuencyMap->erase(itRanking);  // combination {prevOrderNo, key} was really found.
-//          std::cerr << "debug. Frecuency " << prevOrderNo << ", Key: " << key << ", eliminated from the ranking.\n";
+            pFrequencyMap->erase(itRanking);  // combination {prevOrderNo, key} was really found.
+//          std::cerr << "debug. Frequency " << prevOrderNo << ", Key: " << key << ", eliminated from the ranking.\n";
         }
 
     }
 
-    pFrecuencyMap->insert({orderNo, std::string(key)});
+    pFrequencyMap->insert({orderNo, std::string(key)});
 
-    while (pFrecuencyMap->size() > maxReportElementNumber)
+    while (pFrequencyMap->size() > maxReportElementNumber)
     {                                      // Size maintainance that keep reduced and constant the size of this map.
-        ulongstrIterator itRanking = pFrecuencyMap->begin();
-        pFrecuencyMap->erase(itRanking++);
+        ulongstrIterator itRanking = pFrequencyMap->begin();
+        pFrequencyMap->erase(itRanking++);
     }
 
     writingData = 0;
@@ -120,12 +120,12 @@ bool MapManager::isHotKey(const std::string& key)
     strdetailsIterator itKeys = pKeyMap->find(key);
     if (itKeys == itKeyEnd) return false; // supplied key not found in keyMap
 
-    unsigned long orderNo = itKeys->second.frecuency;
-    unsigned long lowestInTopRank = (pFrecuencyMap->empty() ? 0L : pFrecuencyMap->begin()->first);
+    unsigned long orderNo = itKeys->second.frequency;
+    unsigned long lowestInTopRank = (pFrequencyMap->empty() ? 0L : pFrequencyMap->begin()->first);
     if (orderNo < lowestInTopRank)  return false; // orderNo would never be found, no worth searching for it.
 
-    ulongstrIterator itRankingEnd = pFrecuencyMap->end();
-    ulongstrIterator itRanking = pFrecuencyMap->find(orderNo);
+    ulongstrIterator itRankingEnd = pFrequencyMap->end();
+    ulongstrIterator itRanking = pFrequencyMap->find(orderNo);
     if (itRanking == itRankingEnd) return false; // orderNo not found. Should never happen!
 
     while ( itRanking != itRankingEnd && itRanking->second != key
@@ -137,25 +137,25 @@ bool MapManager::isHotKey(const std::string& key)
     return itRanking != itRankingEnd && itRanking->first == orderNo;
 }
 
-void MapManager::getTopHotkeys(KeyFrecuencyVector& vec)
+void MapManager::getTopHotkeys(KeyFrequencyVector& vec)
 {
     unsigned int index = 0;
 
     std::unique_lock<std::mutex> lock(mapMutex);
     mapCondition.wait( lock, [this]{return this->writingData == 0;} );
 
-    ulongstrMap::reverse_iterator itRevRanking = pFrecuencyMap->rbegin();
-    ulongstrMap::reverse_iterator itRevRankingEnd = pFrecuencyMap->rend();
+    ulongstrMap::reverse_iterator itRevRanking = pFrequencyMap->rbegin();
+    ulongstrMap::reverse_iterator itRevRankingEnd = pFrequencyMap->rend();
     while (itRevRanking != itRevRankingEnd && index < baseReportElementNumber)
     {
-        vec.push_back( KeyFrecuency( // move to record, not a copy
+        vec.push_back( KeyFrequency( // move to record, not a copy
                           std::string(itRevRanking->second), std::to_string(itRevRanking->first) ));
         ++itRevRanking;
         ++index;
     }
 }
 
-bool MapManager::backupRequest(const std::string& keyFilename, const std::string& frecFilename)
+bool MapManager::backupRequest(const std::string& keyFilename, const std::string& freqFilename)
 {
     static const char* szMsg1 = "Error ";
     static const char* szMsg2 =  " output file: ";
@@ -172,43 +172,43 @@ bool MapManager::backupRequest(const std::string& keyFilename, const std::string
         return false;
     }
 
-    std::ofstream  outFrecFile(frecFilename);
-    if (outFrecFile.bad())
+    std::ofstream  outFreqFile(freqFilename);
+    if (outFreqFile.bad())
     {
-        logError(frecFilename, "opening");
+        logError(freqFilename, "opening");
         outKeyFile.close();
-        outFrecFile.close();
+        outFreqFile.close();
         return false;
     }
 
     std::unique_lock<std::mutex>  lock(mapMutex);
     mapCondition.wait( lock, [this]{return this->writingData == 0;} );
 
-    // Iterate and dump the frecuency map.
+    // Iterate and dump the frequency map.
 
-    ulongstrIterator itRanking = pFrecuencyMap->begin();
-    ulongstrIterator itRankingEnd = pFrecuencyMap->end();
+    ulongstrIterator itRanking = pFrequencyMap->begin();
+    ulongstrIterator itRankingEnd = pFrequencyMap->end();
     while (itRanking != itRankingEnd)
     {
-        outFrecFile << itRanking->first << fieldSeparator << itRanking->second << '\n';
+        outFreqFile << itRanking->first << fieldSeparator << itRanking->second << '\n';
 
-        if (outFrecFile.bad())
+        if (outFreqFile.bad())
         {
-            logError(frecFilename, "writing");
+            logError(freqFilename, "writing");
             return false;
         }
 
         ++itRanking;
     }
 
-    outFrecFile.close();
+    outFreqFile.close();
 
     // Iterate and dump the key map.
     strdetailsIterator itKeys = pKeyMap->begin();
     strdetailsIterator itKeyEnd = pKeyMap->end();
     while (itKeys != itKeyEnd)
     {
-        outKeyFile << itKeys->first << fieldSeparator << itKeys->second.frecuency
+        outKeyFile << itKeys->first << fieldSeparator << itKeys->second.frequency
         << fieldSeparator << itKeys->second.url << fieldSeparator << itKeys->second.port << '\n';
 
         ++itKeys;
@@ -223,7 +223,7 @@ bool MapManager::backupRequest(const std::string& keyFilename, const std::string
     return true;
 }
 
-bool MapManager::restoreRequest(const std::string& keyFilename, const std::string& frecFilename)
+bool MapManager::restoreRequest(const std::string& keyFilename, const std::string& freqFilename)
 {
     static const char* szMsg1 = "Error ";
     static const char* szMsg2 =  " input file: ";
@@ -240,12 +240,12 @@ bool MapManager::restoreRequest(const std::string& keyFilename, const std::strin
         return false;
     }
 
-    std::ifstream  inFrecFile(frecFilename);
-    if (inFrecFile.bad())
+    std::ifstream  inFreqFile(freqFilename);
+    if (inFreqFile.bad())
     {
-        logError(frecFilename, "opening");
+        logError(freqFilename, "opening");
         inKeyFile.close();
-        inFrecFile.close();
+        inFreqFile.close();
         return false;
     }
 
@@ -265,7 +265,7 @@ bool MapManager::restoreRequest(const std::string& keyFilename, const std::strin
         {
             logError(keyFilename, "reading");
             inKeyFile.close();
-            inFrecFile.close();
+            inFreqFile.close();
             return false;
         }
 
@@ -274,30 +274,30 @@ bool MapManager::restoreRequest(const std::string& keyFilename, const std::strin
     inKeyFile.close();
 
     if (pKeyMap->size() > 0) pKeyMap->clear();
-    while (!inFrecFile.eof())
+    while (!inFreqFile.eof())
     {
-        std::getline(inFrecFile, sOrderNum, fieldSeparator);
-        std::getline(inFrecFile, sKey);
-        if (inFrecFile.bad())
+        std::getline(inFreqFile, sOrderNum, fieldSeparator);
+        std::getline(inFreqFile, sKey);
+        if (inFreqFile.bad())
         {
             logError(keyFilename, "reading");
             inKeyFile.close();
-            inFrecFile.close();
+            inFreqFile.close();
             return false;
         }
 
-        pFrecuencyMap->insert({std::stoul(sOrderNum), sKey});
+        pFrequencyMap->insert({std::stoul(sOrderNum), sKey});
     }
 
     writingData = 0;
     mapCondition.notify_one();
-    inFrecFile.close();
+    inFreqFile.close();
     return true;
 }
 
-void MapManager::purge(unsigned short newFrecuencyMapLength) // purge n , N <= n <= M
+void MapManager::purge(unsigned short newFrequencyMapLength) // purge n , N <= n <= M
 {
-    unsigned int i = 0, n = newFrecuencyMapLength;
+    unsigned int i = 0, n = newFrequencyMapLength;
     if (n > maxReportElementNumber)    n = maxReportElementNumber;
     else if (n < baseReportElementNumber) n = baseReportElementNumber;
 
@@ -307,15 +307,15 @@ void MapManager::purge(unsigned short newFrecuencyMapLength) // purge n , N <= n
 
     strdetailsIterator itKeys = pKeyMap->begin();
     strdetailsIterator itKeyEnd = pKeyMap->end();
-    ulongstrMap::reverse_iterator itRevRanking = pFrecuencyMap->rbegin();
-    ulongstrMap::reverse_iterator itRevRankingEnd = pFrecuencyMap->rend();
+    ulongstrMap::reverse_iterator itRevRanking = pFrequencyMap->rbegin();
+    ulongstrMap::reverse_iterator itRevRankingEnd = pFrequencyMap->rend();
     while (itRevRanking != itRevRankingEnd && i < n)
     {
         std::string key(itRevRanking->second);
         itKeys = pKeyMap->find(key);
         if (itKeys == itKeyEnd) // should never happen
         {
-            pFrecuencyMap->erase(--itRevRanking.base()); // erase the orphan key
+            pFrequencyMap->erase(--itRevRanking.base()); // erase the orphan key
             std::cerr << "WARNING: Erasing orphan key from the ranking: " << key << std::endl;
         }
         else
@@ -327,7 +327,7 @@ void MapManager::purge(unsigned short newFrecuencyMapLength) // purge n , N <= n
     }
 
     if (itRevRanking != itRevRankingEnd) // There are still more elements in "the ranking table".
-        pFrecuencyMap->erase(pFrecuencyMap->begin(), --itRevRanking.base()); // purge them
+        pFrequencyMap->erase(pFrequencyMap->begin(), --itRevRanking.base()); // purge them
 
     if(pKeyMap) delete pKeyMap;
     pKeyMap = pNewkeyMap;
@@ -341,7 +341,7 @@ void MapManager::zap()
     std::lock_guard<std::mutex> lock(mapMutex);
     writingData = 1;
 
-    pFrecuencyMap->clear();
+    pFrequencyMap->clear();
     pKeyMap->clear();
 
     writingData = 0;
