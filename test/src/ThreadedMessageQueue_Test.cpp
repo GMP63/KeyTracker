@@ -1,6 +1,6 @@
 /**
  * @file MapManager_Test.cpp
- * @brief Unit tests for MessageThreadedQueue and MapManager.
+ * @brief Unit tests for ThreadedMessageQueue and MapManager.
  * @author Guillermo M. Paris
  * @date 2019-12-15
  */
@@ -12,19 +12,19 @@
 #include "test-macros.h"
 #include "test.h"
 #include "MapManager_Test.h"
-#include "MessageThreadedQueue.h"
+#include "ThreadedMessageQueue.h"
 
 /******************************
- * MessageThreadedQueue Tests *
+ * ThreadedMessageQueue Tests *
 ******************************/
 
-void queue_KeyBurst(MessageThreadedQueue& q)
+void queue_KeyBurst(ThreadedMessageQueue& q)
 {
     bool direct = false;
     keyInsertion(nullptr, &q, direct, maxNumbers/2); // 40 MKeys
 }
 
-void waitForQueueEmpty(MessageThreadedQueue& q)
+void waitForQueueEmpty(ThreadedMessageQueue& q)
 {
     std::cout << "Waiting queue to get empty.\n";
     unsigned int i = 0;
@@ -42,7 +42,7 @@ void waitForQueueEmpty(MessageThreadedQueue& q)
     std::cout << std::endl;
 }
 
-void MixManagerQueueTests(TEST_REF, MapManager& m, MessageThreadedQueue& q)
+void MixManagerQueueTests(TEST_REF, MapManager& m, ThreadedMessageQueue& q)
 {
     std::cout << "\nMessaging map manager through message queue. Test starting ...\n";
     queue_KeyBurst(q);

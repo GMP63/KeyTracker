@@ -2,8 +2,8 @@
 #define MESSAGETHREADEDQUEUE_H
 
 /**
- * @file MessageThreadedQueue.h
- * @brief MessageThreadedQueue interface.
+ * @file ThreadedMessageQueue.h
+ * @brief ThreadedMessageQueue interface.
  *        A Queue + output thread for messaging to IMapManager derived objects.
  * @author Guillermo M. Paris
  * @date 2019-12-15
@@ -15,10 +15,10 @@
 
 class IMapManager;
 
-class MessageThreadedQueue : public ThreadedQueue<Message>
+class ThreadedMessageQueue : public ThreadedQueue<Message>
 {
 public:
-    MessageThreadedQueue() { consumer = nullptr; }
+    ThreadedMessageQueue() { consumer = nullptr; }
 
     bool    start(IMapManager*);
     void    stop();

@@ -14,7 +14,7 @@
 #include "test-macros.h"
 #include "test.h"
 #include "MapManager.h"
-#include "MessageThreadedQueue.h"
+#include "ThreadedMessageQueue.h"
 
 extern const long CLOCKS_PER_MILLISEC;
 extern const size_t maxNumbers;
