@@ -23,7 +23,7 @@ A load-balancer application redistributes inbound requests across a cluster of b
 ```
 
 ## Overview
-The purpose of this simple excercise is to provide a way to keep track of different key values (character strings) sent to a different key servers in a cloud partitioned topology. Therefore, using this tracker a better understanding of which are the most repeated keys (hot keys) can help in a design to a routing algorithm to the servers of those keys (hotspots) that dominate the traffic.
+The purpose of this simple excercise is to provide a way to keep track of different key values (character strings) sent to a different key servers in a cloud partitioned topology. Therefore, using this tracker provides us a better understanding of which are the most repeated keys (hot keys) can help in a design to a routing algorithm to the servers of those keys (hotspots) that dominate the traffic.
 
 ## Build and run
 ### How to build tracker
@@ -63,6 +63,6 @@ $ **make cleantest** Just cleans the object files related with the unit test, an
 
 ## Performance Issues
 
-For the time being the direct insertion over the maps (MapManager) is aprox. 8.6s in 40MKeys (4.65 MKeys/sec) , while using the threaded queue is only 36s in 40MKeys (1.11 MKeys/sec).
+For the time being, the direct insertion performance over the maps (MapManager) is aproximately 8.6s in 40MKeys (4.65 MKeys/sec)  But when a threaded queue is the intermediate between the message source and the MapManager, this is reduced to only 36s in 40MKeys (1.11 MKeys/sec).
 This poor performance is due to contention between push() and pop() methods of this queue when performing mutex acquiring. The solution to this problem is to replace this queue for another inheritated from boost::lockfree::detail::queue . That is, a mutexless implementation from boost library. The aim of this current version 1 has been to implement all standard code using just STL, but this philosophy is going to be revised in further versions, using libraries more suitable for this solution.
 
