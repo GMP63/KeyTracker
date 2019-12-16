@@ -1,5 +1,26 @@
 # MediaMath's Coding Challenge: KeyTracker
-Mediamath Coding Challenge exercise about string key tracking.
+Mediamath Coding Challenge exercise about string key tracking:
+```
+The Problem:
+
+A load-balancer application redistributes inbound requests across a cluster of backend servers in a partition-by-key manner. However, the frequency of the partition keys varies greatly among different keys, with some outliers that can be 100x - 1000x more popular than the average keys. A naive partition-by-key routing algorithm will, unfortunately, create hotspots on some backend servers.
+
+ We want to either avoid or significantly reduce the impact of the hotspots had this happened. A solution to address this problem is to detect and identify keys that will cause hotspots. The load-balancer could then use a different routing algorithm (like round-robin-partition) on requests with those keys.
+
+
+
+ The Asks:
+
+ Implement an efficient hotspot tracker to track frequency of keys. The tracker needs to dynamically keep track of at least the N most frequently used keys (hotspots). It must provide an interface to answer the following questions:
+
+• Who are in the hotspots list (top N keys by frequency)
+
+• Is a given key a hotspot?
+
+ In this problem, N is a configurable variable that is provided during initialization.
+
+ You can implement your design in either C++ or Golang.
+```
 
 ## Overview
 The purpose of this simple excercise is to provide a way to keep track of different key values (character strings) sent to a different key servers in a cloud partitioned topology. Therefore, using this tracker a better understanding of which are the most repeated keys (hot keys) can help in a design to a routing algorithm to the servers of those keys (hotspots) that dominate the traffic.
