@@ -7,9 +7,9 @@
 
 #include <cstddef>
 #include "MapManager.h"
-#include "MessageThreadedQueue.h"
+#include "ThreadedMessageQueue.h"
 
 extern const long CLOCKS_PER_MILLISEC;
 extern const size_t maxNumbers;
 
-void keyInsertion(MapManager* pMgr, MessageThreadedQueue* pMtq, bool direct, size_t burstSize);
+void keyInsertion(MapManager* pMgr, ThreadedMessageQueue* pMtq, bool direct, size_t burstSize);

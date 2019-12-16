@@ -1,6 +1,6 @@
 /**
- * @file MessageThreadedQueue.cpp
- * @brief MessageThreadedQueue implementation.
+ * @file ThreadedMessageQueue.cpp
+ * @brief ThreadedMessageQueue implementation.
  *        A Queue + output thread for messaging to IMapManager derived objects.
  * @author Guillermo M. Paris
  * @date 2019-12-15
@@ -8,9 +8,9 @@
 
 #include <thread>
 #include "IMapManager.h"
-#include "MessageThreadedQueue.h"
+#include "ThreadedMessageQueue.h"
 
-bool MessageThreadedQueue::start(IMapManager* msgConsumer)
+bool ThreadedMessageQueue::start(IMapManager* msgConsumer)
 {
     if (msgConsumer == nullptr) return false;
 
@@ -20,7 +20,7 @@ bool MessageThreadedQueue::start(IMapManager* msgConsumer)
     return true;
 }
 
-void MessageThreadedQueue::run()
+void ThreadedMessageQueue::run()
 {
     while (running)
     {
@@ -48,7 +48,7 @@ void MessageThreadedQueue::run()
     }
 }
 
-void MessageThreadedQueue::stop()
+void ThreadedMessageQueue::stop()
 {
     running = false;
     getWaitCondition().notify_all();

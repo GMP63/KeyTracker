@@ -14,17 +14,17 @@
 class IMapManager
 {
 public:
-    struct KeyFrecuency
+    struct KeyFrequency
     {
-        KeyFrecuency(const std::string&& sKey, const std::string&& sFrec)
-          : key(sKey), frecuency(sFrec) {}
-        ~KeyFrecuency() { key.clear(); frecuency.clear(); }
+        KeyFrequency(const std::string&& sKey, const std::string&& sFreq)
+          : key(sKey), frequency(sFreq) {}
+        ~KeyFrequency() { key.clear(); frequency.clear(); }
 
         std::string  key;
-        std::string  frecuency;
+        std::string  frequency;
     };
 
-    using KeyFrecuencyVector = std::vector<KeyFrecuency>;
+    using KeyFrequencyVector = std::vector<KeyFrequency>;
 
     virtual void      addOrUpdateKey(const std::string& key, const std::string& url, unsigned int port) = 0;
     virtual void      setTopKeyReportBaseSize(unsigned short baseSize) = 0;
@@ -32,10 +32,10 @@ public:
     virtual unsigned  getTopKeyReportActualSize() = 0;
     virtual unsigned  getTopKeyReportMaxSize() = 0;
     virtual unsigned  getTotalKeyNumber() = 0;
-    virtual void      getTopHotkeys(KeyFrecuencyVector&) = 0;
+    virtual void      getTopHotkeys(KeyFrequencyVector&) = 0;
     virtual bool      isHotKey(const std::string& key) = 0;
-    virtual bool      backupRequest(const std::string& keyFile, const std::string& frecFile) = 0;
-    virtual bool      restoreRequest(const std::string& keyFile, const std::string& frecFile) = 0;
+    virtual bool      backupRequest(const std::string& keyFile, const std::string& freqFile) = 0;
+    virtual bool      restoreRequest(const std::string& keyFile, const std::string& freqFile) = 0;
 };
 
 #endif // IMAPMANAGER_H

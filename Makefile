@@ -6,10 +6,10 @@ templates = Message ThreadedQueue
 htpls = $(patsubst %, include/%.h, $(templates))
 
 # The source file list.
-app_modules = MapManager MessageThreadedQueue
+app_modules = MapManager ThreadedMessageQueue
 hdrs = $(patsubst %, include/%.h, $(app_modules))
 srcs = $(patsubst %, src/%.cpp, $(app_modules))
-test_modules = test-macros MapManager_Test MessageThreadedQueue_Test
+test_modules = test-macros MapManager_Test ThreadedMessageQueue_Test
 test_hdrs = $(patsubst %, test/src/%.h, $(test_modules))
 test_srcs = $(patsubst %, test/src/%.cpp, $(test_modules))
 

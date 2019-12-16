@@ -7,7 +7,7 @@
 #include "BackupManager.h"
 #include "MapManager.h"
 #include "MessageServer.h"
-#include "MessageThreadedQueue.h"
+#include "ThreadedMessageQueue.h"
 
 std::mutex exitMutex;
 int running = 1;
@@ -43,7 +43,7 @@ int main(int argc, char* argv[])
     signal(SIGALRM, signalHandler);
 
     MapManager mgr;
-    MessageThreadedQueue queue;
+    ThreadedMessageQueue queue;
     BackupManager backupMgr;
     //MessageServer srv;
     //srv.setQueue(&queue);

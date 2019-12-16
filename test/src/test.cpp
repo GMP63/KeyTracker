@@ -12,7 +12,7 @@
 #include <thread>
 #include "test-macros.h"
 #include "MapManager_Test.h"
-#include "MessageThreadedQueue_Test.h"
+#include "ThreadedMessageQueue_Test.h"
 #include "FirstHundredNumbersArray.h"
 
 extern const long CLOCKS_PER_MILLISEC = CLOCKS_PER_SEC / 1000;
@@ -46,7 +46,7 @@ void populateArray()
     std::cout << "It took " << ((finish - start) / CLOCKS_PER_MILLISEC) << " mSec\n\n";
 }
 
-void keyInsertion(MapManager* pMgr, MessageThreadedQueue* pMtq, bool direct, size_t burstSize)
+void keyInsertion(MapManager* pMgr, ThreadedMessageQueue* pMtq, bool direct, size_t burstSize)
 {
     std::cout << "Inserting " << burstSize << " keys ...." << '\n';
     clock_t start = 0, finish = 0;
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
     // global common object instantiation here.
     populateArray();
     MapManager m;
-    MessageThreadedQueue q;
+    ThreadedMessageQueue q;
 
     // test suites go here
     MapManagerTests(TEST, m);

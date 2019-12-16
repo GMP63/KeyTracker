@@ -24,11 +24,11 @@ public:
     struct KeyDetails
     {
         KeyDetails(const std::string& s, unsigned int ui, unsigned long ul)
-          : url(s), port(ui), frecuency(ul) {}
+          : url(s), port(ui), frequency(ul) {}
 
         std::string   url;
         unsigned int  port;
-        unsigned long frecuency;
+        unsigned long frequency;
     };
 
     using strdetailsMap = std::map<std::string, KeyDetails>;
@@ -43,13 +43,13 @@ public:
     virtual void      addOrUpdateKey(const std::string& key, const std::string& url, unsigned int port);
     virtual void      setTopKeyReportBaseSize(unsigned short base);
     virtual unsigned  getTopKeyReportBaseSize() {return baseReportElementNumber;}  // getN();
-    virtual unsigned  getTopKeyReportActualSize() {return pFrecuencyMap->size();}
+    virtual unsigned  getTopKeyReportActualSize() {return pFrequencyMap->size();}
     virtual unsigned  getTopKeyReportMaxSize() {return maxReportElementNumber;} // getM();
     virtual unsigned  getTotalKeyNumber() {return pKeyMap->size();}
-    virtual void      getTopHotkeys(KeyFrecuencyVector& vec);
+    virtual void      getTopHotkeys(KeyFrequencyVector& vec);
     virtual bool      isHotKey(const std::string& key);
-    virtual bool      backupRequest(const std::string& keyFilename, const std::string& frecFilename);
-    virtual bool      restoreRequest(const std::string& keyFilename, const std::string& frecFilename);
+    virtual bool      backupRequest(const std::string& keyFilename, const std::string& freqFilename);
+    virtual bool      restoreRequest(const std::string& keyFilename, const std::string& freqFilename);
 
     void purge(unsigned short n); // purge n /  N <= n <= M
     void zap();
@@ -62,7 +62,7 @@ private:
     unsigned short baseReportElementNumber; // N = DEFAULT_TOPKEY_REPORTSIZE
     unsigned short maxReportElementNumber;  // M = MAX_TOPKEY_REPORTSIZE
     strdetailsMap* pKeyMap;
-    ulongstrMap*   pFrecuencyMap;
+    ulongstrMap*   pFrequencyMap;
     int            writingData;
     std::mutex     mapMutex;
     std::condition_variable mapCondition;
