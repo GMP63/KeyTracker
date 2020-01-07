@@ -1,5 +1,8 @@
+.vscode
+*.code-*
 *.csv
 /bin
 /obj
 /test/bin
 /test/obj
+
