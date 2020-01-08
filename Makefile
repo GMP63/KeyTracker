@@ -2,7 +2,7 @@
 PROJECT = 'Hotspot Tracker'
 
 # The "pure header" file list.
-templates = Message ThreadedQueue
+templates = Message
 htpls = $(patsubst %, include/%.h, $(templates))
 
 # The source file list.

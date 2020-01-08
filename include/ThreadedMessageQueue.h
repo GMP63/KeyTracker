@@ -12,7 +12,6 @@
 #include <thread>
 #include <boost/lockfree/queue.hpp>
 #include "Message.h"
-#include "ThreadedQueue.h"
 
 #define FIRST_POPING_LATENCY 10 // 10 mSec
 
