@@ -26,13 +26,13 @@ void queue_KeyBurst(ThreadedMessageQueue& q)
 
 void waitForQueueEmpty(ThreadedMessageQueue& q)
 {
-    std::cout << "Waiting for queue to be empty.\n";
+    std::cout << "Waiting queue to get empty.\n";
     unsigned int i = 0;
-    while (! q.empty())
+    while (! q.isEmpty())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         ++i;
-        if (i % 5) // prints a dot every second.
+        if (i % 5 == 0) // prints a dot every second.
         {
             std::cout << '.';
             std::cout.flush();

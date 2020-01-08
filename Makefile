@@ -37,9 +37,9 @@ else
 endif
 
 # The compiler flags.
-CPPFLAGS = $(rod) -std=c++17 -Iinclude
+CPPFLAGS = $(rod) -std=c++17 -Iinclude -I/home/guille/Proyecto/boost/include
 # The linker flags.
-LDFLAGS = -pthread -lstdc++ -lm
+LDFLAGS = -L ~/Proyecto/boost/lib -pthread -lstdc++ -lm
 
 # The create directory action
 make_dir = mkdir -p

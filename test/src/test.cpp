@@ -17,6 +17,7 @@
 
 extern const long CLOCKS_PER_MILLISEC = CLOCKS_PER_SEC / 1000;
 extern const size_t maxNumbers = 80000000;
+const size_t initialQueueNodes = maxNumbers/8;
 
 
 const char* urls[10] =
@@ -65,9 +66,9 @@ void keyInsertion(MapManager* pMgr, ThreadedMessageQueue* pMtq, bool direct, siz
 
         if (direct && pMgr)
             pMgr->addOrUpdateKey(sKey, pUrl, nPort);
-        else if (pMtq)
+        else if (!direct && pMtq)
         {
-            pMtq->push(Message(Message::Command::addKey, sKey, pUrl, 0, 0, nPort));
+            pMtq->push(new Message(Message::Command::addKey, sKey, pUrl, 0, 0, nPort));
         }
         else
         {
@@ -90,7 +91,7 @@ int main(int argc, char* argv[])
     // global common object instantiation here.
     populateArray();
     MapManager m;
-    ThreadedMessageQueue q;
+    ThreadedMessageQueue q(initialQueueNodes);
 
     // test suites go here
     MapManagerTests(TEST, m);
