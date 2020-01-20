@@ -31,11 +31,13 @@ public:
             uint8_t u8 = 0, uint16_t u16 = 0, uint32_t u32 = 0)
         : cmd(c), str1(s1), str2(s2), nbyte(u8), nshort(u16), number(u32) {}
 
-    Message(const Message& m) // push = delete;
+    Message(const Message& m)
         : cmd(m.cmd), str1(m.str1), str2(m.str2), nbyte(m.nbyte), nshort(m.nshort), number(m.number) {}
 
     Message(const Message&& m)
         : cmd(m.cmd), str1(std::move(m.str1)), str2(std::move(m.str2)), nbyte(m.nbyte), nshort(m.nshort), number(m.number) {}
+
+    ~Message() {str1.clear(); str2.clear();}
 
     const Message& operator = (const Message& m) // pop = delete;
           { cmd = m.cmd; str1 = m.str1; str2 = m.str2;

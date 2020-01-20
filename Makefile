@@ -2,7 +2,7 @@
 PROJECT = 'Hotspot Tracker'
 
 # The "pure header" file list.
-templates = Message ThreadedQueue
+templates = Message
 htpls = $(patsubst %, include/%.h, $(templates))
 
 # The source file list.
@@ -37,9 +37,9 @@ else
 endif
 
 # The compiler flags.
-CPPFLAGS = $(rod) -std=c++17 -Iinclude
+CPPFLAGS = $(rod) -std=c++17 -Iinclude -I/home/guille/Proyecto/boost/include
 # The linker flags.
-LDFLAGS = -pthread -lstdc++ -lm
+LDFLAGS = -L ~/Proyecto/boost/lib -pthread -lstdc++ -lm
 
 # The create directory action
 make_dir = mkdir -p

@@ -6,9 +6,22 @@
  * @date 2019-12-15
  */
 
+#include <cassert>
 #include <thread>
 #include "IMapManager.h"
 #include "ThreadedMessageQueue.h"
+
+ThreadedMessageQueue::~ThreadedMessageQueue()
+{
+    while (!BLFMessageQueue::empty())
+    {
+        Message* pm = nullptr;
+        if (pop(pm))
+        {
+            delete pm;
+        }
+    }
+}
 
 bool ThreadedMessageQueue::start(IMapManager* msgConsumer)
 {
@@ -24,22 +37,27 @@ void ThreadedMessageQueue::run()
 {
     while (running)
     {
-        Message m;
-        pop(m);
+        Message* pm = nullptr;
+        if (! pop(pm)) // queue is empty
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(firstPopLatency)); // 10 mSec
+            continue;
+        }
 
-        switch (m.getCommand())
+        switch (pm->getCommand())
         {
         case Message::Command::addKey:
-            consumer->addOrUpdateKey(m.getStringRef1(), m.getStringRef2(), m.getNumber());
+            consumer->addOrUpdateKey(pm->getStringRef1(), pm->getStringRef2(), pm->getNumber());
+            delete pm;
             break;
 
         case Message::Command::setRankingLength:
-            consumer->setTopKeyReportBaseSize(m.getNumber());
+            consumer->setTopKeyReportBaseSize(pm->getNumber());
+            delete pm;
             break;
 
         case Message::Command::stop:
             running = false;
-            getWaitCondition().notify_all();
             break;
 
         default:
@@ -51,6 +69,15 @@ void ThreadedMessageQueue::run()
 void ThreadedMessageQueue::stop()
 {
     running = false;
-    getWaitCondition().notify_all();
     poper.join();
+}
+
+void ThreadedMessageQueue::push(Message* pMsg)
+{
+    assert(pMsg != nullptr);
+
+    if (running)
+    {
+        BLFMessageQueue::push(pMsg);
+    }
 }
