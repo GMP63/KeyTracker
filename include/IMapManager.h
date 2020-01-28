@@ -3,29 +3,16 @@
 
 /**
  * @file MapManager.h
- * @brief IMapManager interface.
+ * @brief IMapManager abstract interface.
  * @author Guillermo M. Paris
  * @date 2019-12-15
  */
 
-#include <string>
-#include <vector>
+#include "KeyFrequency.h"
 
 class IMapManager
 {
 public:
-    struct KeyFrequency
-    {
-        KeyFrequency(const std::string&& sKey, const std::string&& sFreq)
-          : key(sKey), frequency(sFreq) {}
-        ~KeyFrequency() { key.clear(); frequency.clear(); }
-
-        std::string  key;
-        std::string  frequency;
-    };
-
-    using KeyFrequencyVector = std::vector<KeyFrequency>;
-
     virtual void      addOrUpdateKey(const std::string& key, const std::string& url, unsigned int port) = 0;
     virtual void      setTopKeyReportBaseSize(unsigned short baseSize) = 0;
     virtual unsigned  getTopKeyReportBaseSize() = 0;

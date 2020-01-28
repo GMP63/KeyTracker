@@ -18,53 +18,55 @@ public:
         notDefined, stop, addKey, getKeyRanking, isHotKey, setRankingLength
     };
 
-    Message() : cmd(Command::notDefined), nbyte(0), nshort(0), number(0) {}
+    Message() : m_cmd(Command::notDefined), m_nbyte(0), m_nshort(0), m_number(0) {}
 
     Message(Command c, uint8_t u8 = 0, uint16_t u16 = 0, uint32_t u32 = 0)
-        : cmd(c), nbyte(u8), nshort(u16), number(u32) {}
+        : m_cmd(c), m_nbyte(u8), m_nshort(u16), m_number(u32) {}
 
     Message(Command c, const std::string& s1, const std::string& s2,
             uint8_t u8 = 0, uint16_t u16 = 0, uint32_t u32 = 0)
-        : cmd(c), str1(s1), str2(s2), nbyte(u8), nshort(u16), number(u32) {}
+        : m_cmd(c), m_str1(s1), m_str2(s2), m_nbyte(u8), m_nshort(u16), m_number(u32) {}
 
     Message(Command c, const std::string&& s1, const std::string&& s2,
             uint8_t u8 = 0, uint16_t u16 = 0, uint32_t u32 = 0)
-        : cmd(c), str1(s1), str2(s2), nbyte(u8), nshort(u16), number(u32) {}
+        : m_cmd(c), m_str1(s1), m_str2(s2), m_nbyte(u8), m_nshort(u16), m_number(u32) {}
 
     Message(const Message& m)
-        : cmd(m.cmd), str1(m.str1), str2(m.str2), nbyte(m.nbyte), nshort(m.nshort), number(m.number) {}
+        : m_cmd(m.m_cmd), m_str1(m.m_str1), m_str2(m.m_str2),
+        m_nbyte(m.m_nbyte), m_nshort(m.m_nshort), m_number(m.m_number) {}
 
     Message(const Message&& m)
-        : cmd(m.cmd), str1(std::move(m.str1)), str2(std::move(m.str2)), nbyte(m.nbyte), nshort(m.nshort), number(m.number) {}
+        : m_cmd(m.m_cmd), m_str1(std::move(m.m_str1)), m_str2(std::move(m.m_str2))
+        , m_nbyte(m.m_nbyte), m_nshort(m.m_nshort), m_number(m.m_number) {}
 
-    ~Message() {str1.clear(); str2.clear();}
+//  ~Message() {m_str1.clear(); m_str2.clear();}
 
     const Message& operator = (const Message& m) // pop = delete;
-          { cmd = m.cmd; str1 = m.str1; str2 = m.str2;
-            nbyte = m.nbyte; nshort = m.nshort; number = m.number; return m; }
+          { m_cmd = m.m_cmd; m_str1 = m.m_str1; m_str2 = m.m_str2;
+            m_nbyte = m.m_nbyte; m_nshort = m.m_nshort; m_number = m.m_number; return m; }
 
     const Message& operator = (Message&& m)
-          { cmd = m.cmd; str1 = std::move(m.str1); str2 = std::move(m.str2);
-            nbyte = m.nbyte; nshort = m.nshort; number = m.number; return *this; }
+          { m_cmd = m.m_cmd; m_str1 = std::move(m.m_str1); m_str2 = std::move(m.m_str2);
+            m_nbyte = m.m_nbyte; m_nshort = m.m_nshort; m_number = m.m_number; return *this; }
 
-    std::string   getString1() { return str1; }
-    std::string   getString2() { return str2; } // sometimes a copy is necessary :)
-    void          getString1(std::string& s1) { s1 = str1; }
-    void          getString2(std::string& s2) { s2 = str1; }
-    std::string&  getStringRef1() { return str1; }
-    std::string&  getStringRef2() { return str2; }
-    Command       getCommand() { return cmd; }
-    uint8_t       getByte()    { return nbyte; }
-    uint16_t      getShort()   { return nshort; }
-    uint32_t      getNumber()  { return number; }
+    std::string   getString1() { return m_str1; }
+    std::string   getString2() { return m_str2; } // sometimes a copy is necessary :)
+    void          getString1(std::string& s1) { s1 = m_str1; }
+    void          getString2(std::string& s2) { s2 = m_str1; }
+    std::string&  getStringRef1() { return m_str1; }
+    std::string&  getStringRef2() { return m_str2; }
+    Command       getCommand() { return m_cmd; }
+    uint8_t       getByte()    { return m_nbyte; }
+    uint16_t      getShort()   { return m_nshort; }
+    uint32_t      getNumber()  { return m_number; }
 
 private:
-    std::string  str1;
-    std::string  str2;
-    Command      cmd;
-    uint8_t      nbyte;
-    uint16_t     nshort;
-    uint32_t     number;
+    std::string  m_str1;
+    std::string  m_str2;
+    Command      m_cmd;
+    uint8_t      m_nbyte;
+    uint16_t     m_nshort;
+    uint32_t     m_number;
 };
 
 #endif // MESSAGE_H

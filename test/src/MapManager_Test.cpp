@@ -13,6 +13,7 @@
 #include <thread>
 #include "test-macros.h"
 #include "test.h"
+#include "KeyFrequency.h"
 #include "MapManager.h"
 #include "ThreadedMessageQueue.h"
 
@@ -42,7 +43,7 @@ void mapmanager_backupTest(MapManager& mgr)
 
 size_t mapmanager_rankingTest(MapManager& mgr)
 {
-    IMapManager::KeyFrequencyVector vecResults;
+    KeyFrequencyVector vecResults;
     mgr.getTopHotkeys(vecResults);
 
     std::cout << "Most Frequent Keys" << '\n'
@@ -166,7 +167,7 @@ void mapmanager_functionalTest(TEST_REF)
     EXPECT_TRUE(m.isHotKey("DDDDDDDDDD"));
     EXPECT_EQ(m.getTotalKeyNumber(), 26);
 
-    IMapManager::KeyFrequencyVector v;
+    KeyFrequencyVector v;
 
     m.getTopHotkeys(v);
     EXPECT_EQ(m.getTopKeyReportActualSize(), 24);

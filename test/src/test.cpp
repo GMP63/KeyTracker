@@ -95,7 +95,8 @@ int main(int argc, char* argv[])
 
     // test suites go here
     MapManagerTests(TEST, m);
-    q.start(&m);
+    q.setConsumer(&m);
+    q.start();
     MixManagerQueueTests(TEST, m, q);
     PRINT_RESULTS(std::cout);
 

@@ -8,8 +8,9 @@
 
 #include <cassert>
 #include <thread>
-#include "IMapManager.h"
 #include "ThreadedMessageQueue.h"
+
+const int ThreadedMessageQueue::firstPopLatency = FIRST_POPING_LATENCY;
 
 ThreadedMessageQueue::~ThreadedMessageQueue()
 {
@@ -23,41 +24,46 @@ ThreadedMessageQueue::~ThreadedMessageQueue()
     }
 }
 
-bool ThreadedMessageQueue::start(IMapManager* msgConsumer)
+bool ThreadedMessageQueue::start()
 {
-    if (msgConsumer == nullptr) return false;
+    if (m_consumer == nullptr) return false;
 
-    consumer = msgConsumer;
-    running = true;
-    poper = std::thread([this]{run();}); 
+    m_running = true;
+    m_poper = std::thread([this]{run();}); 
     return true;
 }
 
 void ThreadedMessageQueue::run()
 {
-    while (running)
+    while (m_running)
     {
-        Message* pm = nullptr;
-        if (! pop(pm)) // queue is empty
+        if (empty())
         {
-            std::this_thread::sleep_for(std::chrono::milliseconds(firstPopLatency)); // 10 mSec
+            std::this_thread::sleep_for(std::chrono::milliseconds(firstPopLatency)); // 1 mSec
+            continue;
+        }
+
+        Message* pm = nullptr;
+        if (! pop(pm)) // some unknown problem
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(firstPopLatency)); // 1 mSec
             continue;
         }
 
         switch (pm->getCommand())
         {
         case Message::Command::addKey:
-            consumer->addOrUpdateKey(pm->getStringRef1(), pm->getStringRef2(), pm->getNumber());
+            m_consumer->addOrUpdateKey(pm->getStringRef1(), pm->getStringRef2(), pm->getNumber());
             delete pm;
             break;
 
         case Message::Command::setRankingLength:
-            consumer->setTopKeyReportBaseSize(pm->getNumber());
+            m_consumer->setTopKeyReportBaseSize(pm->getShort());
             delete pm;
             break;
 
         case Message::Command::stop:
-            running = false;
+            m_running = false;
             break;
 
         default:
@@ -66,17 +72,18 @@ void ThreadedMessageQueue::run()
     }
 }
 
-void ThreadedMessageQueue::stop()
+bool ThreadedMessageQueue::stop()
 {
-    running = false;
-    poper.join();
+    m_running = false;
+    m_poper.join();
+    return true; // this implementation always return true.
 }
 
 void ThreadedMessageQueue::push(Message* pMsg)
 {
     assert(pMsg != nullptr);
 
-    if (running)
+    if (m_running)
     {
         BLFMessageQueue::push(pMsg);
     }
