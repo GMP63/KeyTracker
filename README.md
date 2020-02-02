@@ -270,6 +270,7 @@ Content-Length: 133
 </html>
 
 $
+```
 Simultaneously on the server side, you will see the shutdown process:
 ```
 Restart in progress.
@@ -549,6 +550,11 @@ $ **make cleanapp** Just cleans the object files related with the application, a
 $ **make cleantest** Just cleans the object files related with the unit test, and its executable file test.
 
 ## Performance Issues
+### Direct instertion to MapManager and direct insertion to the message queue (/keySent and /setTopHotKeys)
+For the time being the direct insertion over the maps (MapManager) throughput is aprox. 40MKeys in 8.6s (4.65 MKeys/sec), while using the original threaded queue (version 1.0.0) this decreases to 40MKeys in 36s (1.11 MKeys/sec).
+This poor performance is due to contention between the push() and pop() methods of this queue when performing mutex acquisition. The solution to this problem is to replace the queue implementation for another one inheriting from boost::lockfree::detail::queue . That is, a mutexless, lock-free implementation from the boost library. The aim of the former version 1 was to implement all standard code using just STL, but the philosophy was going to change in future versions, using libraries more suitable for this solution.
+Now, starting from version 1.1.0 and afterwards, the queue is really implemented as a boost::lockfree::detail::queue , then the performance for direct access to the queue (/keySent or /setTopHotKeys) has been improved to 40MKeys in 15.5s (2.58 MKeys/sec).
+The reference for all of these performance measurment was an i5-6260U CPU 1.8-2.6 GHz 16GiB DRAM computer, running Ubuntu 18.04.3 x86-64.
+### Insertion via web client
+Using bin/client_benchmark to insert keys from a web client perspective, the performance measured by the test was 1MKey in about 19.2 sec , that is 52 Kkeys/sec aproximately. As you can see, the web conexion slows down all the insertion process, so a direct TCP or even direct call is prefered. This web server might be eliminated in future versions.
 
-For the time being the direct insertion over the maps (MapManager) throughput is aprox. 40MKeys in 8.6s (4.65 MKeys/sec), while using the threaded queue this decreases to 40MKeys in 36s (1.11 MKeys/sec).
-This poor performance is due to contention between the push() and pop() methods of this queue when performing mutex acquisition. The solution to this problem is to replace the queue implementation for another one inheriting from boost::lockfree::detail::queue. That is, a mutexless, lock-free implementation from the boost library. The aim of this current version 1 has been to implement all standard code using just STL, but this philosophy is going to change in future versions, using libraries more suitable for this solution.
