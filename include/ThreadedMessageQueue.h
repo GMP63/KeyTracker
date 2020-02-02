@@ -12,35 +12,37 @@
 #include <thread>
 #include <boost/lockfree/queue.hpp>
 #include "Message.h"
+#include "IMapManager.h"
+#include "IQueue.h"
 
-#define FIRST_POPING_LATENCY 10 // 10 mSec
+#define FIRST_POPING_LATENCY 1 // up to 1 mSec latency in the first pop()
 
 using BLFMessageQueue = boost::lockfree::queue<Message*>;
-class IMapManager;
 
-class ThreadedMessageQueue : private BLFMessageQueue
+class ThreadedMessageQueue : public IQueue<Message*, IMapManager*>, private BLFMessageQueue
 {
 public:
-    static const int firstPopLatency = FIRST_POPING_LATENCY;
+    static const int firstPopLatency; // = FIRST_POPING_LATENCY;
 
     ThreadedMessageQueue()
-        : consumer(nullptr), running(false) {}
+        : BLFMessageQueue(10), m_consumer(nullptr), m_running(false) {}
     ThreadedMessageQueue(size_t initialSize)
-        : BLFMessageQueue(initialSize), consumer(nullptr), running(false) {}
+        : BLFMessageQueue(initialSize), m_consumer(nullptr), m_running(false) {}
 
     ~ThreadedMessageQueue();
 
-    bool    isEmpty() { return BLFMessageQueue::empty(); }
-    bool    start(IMapManager*);
-    void    stop();
-    void    push(Message* pMsg);
+    virtual void setConsumer(IMapManager* pMgr) { m_consumer = pMgr; }
+    virtual bool isEmpty() { return BLFMessageQueue::empty(); }
+    virtual bool start();
+    virtual bool stop();
+    virtual void push(Message* pMsg);
 
 private:
     void    run();
 
-    bool          running;
-    IMapManager*  consumer;
-    std::thread   poper;
+    bool          m_running;
+    IMapManager*  m_consumer;
+    std::thread   m_poper;
 };
 
 #endif // MESSAGETHREADEDQUEUE_H

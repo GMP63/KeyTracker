@@ -24,16 +24,504 @@ A load-balancer application redistributes inbound requests across a cluster of b
 The purpose of this simple excercise is to provide a way to keep track of different key values (character strings) sent to different key servers in a cloud partitioned topology. Therefore, using this tracker, a better understanding of which are the most repeated keys (hot keys) can help design a routing algorithm to the servers of those keys (hotspots) that dominate the traffic.
 
 ## Build and run
-### How to build tracker
+### How to build all the tracker
 Download this repo. In its root directory you will see a Makefile. Positioned inside this root directory (project root folder), open a terminal and then type the following:
 $ **make release all**
 
 Note that this will require a `make` environment and a C++ compiler (package `build-essential` covers both in Debian-type Linux distros).
 This creates two binaries, the `application` (./bin/tracker) and the `unit test` (./test/bin/test). After completing these two builds, the tests will be run: the terminal should show the progression and timing for the tests execution.
 
+### How to build just the tracker application (without running tests)
+$ **make release app**
+To START running the tracker application (with web server incorporated):
+$ bin/**tracker** IPfilter port threadQty(max 200)      example:
+bin/tracker 0.0.0.0 8080 200
+
+
+### How to build just the tests and run it
+$ **make release test** to build the automated test and run them in one shot.
+
+Or
+$ **make release webclient-cmd** to build the web command line client.
+To run the client web request commands manually:
+bin/**http-client-command** <G|Ppayload> <IpAddress> <port> /command
+
+Or
+$ **make release webclient-test** to build the web client batch tests.
+To run the client batch test in one shot:
+bin/**client_benchmark**
+
 ### How to run the tests
 As commented above, immediately after a successful build, a test suite is run as a final part of the mentioned build. If you want to run the test again, then type:
 $ ./test/bin/test
+
+### Web Tests since version 2.0.0
+#### Test command by command with a browser
+Use a web plugin (such as Talend API Tester) to perform the following **POST** commands:
+http://localhost:8080/isHotKey      Payload (plain text): 'text of the key' (the answer is in the reply payload: YES or NO)
+http://localhost:8080/keySent       Payload (plain text): 'text of the key' (reports the key to the tracker)
+http://localhost:8080/setTopHotKeys Payload 12 (for setting 12 key the max report size)
+
+Use a web browser to perform the following **GET** commands:
+http://localhost:8080/getTopHotKeys returning a JSON with n top keys and its frequencies (12 keys in our example)
+http://localhost:8080/totalKeys returning the total number of registered keys.
+http://localhost:8080/restore will restore the whole collection of keys from a previous backup in disk. This command should be performed at application startup.
+http://localhost:8080/shutdown To perform a clean shutdown of the application.
+
+#### Batch Test using command line
+
+POST keySent :
+```
+$ bin/http-client-command P"key text" 127.0.0.1 8080 /keySent
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 141
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>keySent:</h1>
+<p>reported key sent : "key text"</p>
+</body>
+</html>
+
+$
+```
+
+POST isHotKey :
+```
+$ bin/http-client-command P"key text" localhost 8080 /isHotKey
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 116
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>isHotKey:</h1>
+<p>NO</p>
+</body>
+</html>
+
+$
+```
+
+POST setTopHotKeys or setKeyReportBaseSize (set base size to 12) :
+$ bin/http-client-command P12 localhost 8080 /setTopHotKeys
+or
+```
+bin/http-client-command P12 localhost 8080 /setKeyReportBaseSize
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 155
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>setKeyReportBaseSize:</h1>
+<p>Top key report size is now 12</p>
+</body>
+</html>
+
+$
+```
+
+GET getTopHotKeys (get a JSON with n top keys and its frequencies (12 keys in our example)) :
+```
+$ bin/http-client-command G localhost 8080 /getTopHotKeys
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 632
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>getTopHotKeys:</h1>
+<p>{[{"Key": "testing_keySent_001_0016","Frequency": 1},{"Key": "testing_keySent_001_0015","Frequency": 1},{"Key": "testing_keySent_001_0014","Frequency": 1},{"Key": "testing_keySent_001_0013","Frequency": 1},{"Key": "testing_keySent_001_0012","Frequency": 1},{"Key": "testing_keySent_001_0011","Frequency": 1},{"Key": "testing_keySent_001_0010","Frequency": 1},{"Key": "testing_keySent_001_0009","Frequency": 1},{"Key": "testing_keySent_001_0008","Frequency": 1},{"Key": "testing_keySent_001_0007","Frequency": 1}]}</p>
+</body>
+</html>
+
+$
+```
+Or, this:
+```
+$ bin/http-client-command G localhost 8080 /getTopHotKeys
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 608
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>getTopHotKeys:</h1>
+<p>{[{"Key": "fifty-two fifty-two","Frequency": 57180},{"Key": "fifty fifty-two","Frequency": 57064},{"Key": "fifty fifty-one","Frequency": 57036},{"Key": "fifty fifty","Frequency": 56840},{"Key": "fifty-one fifty-one","Frequency": 56812},{"Key": "fifty-one fifty","Frequency": 56776},{"Key": "fifty-one fifty-two","Frequency": 56712},{"Key": "fifty-two fifty-one","Frequency": 56692},{"Key": "fifty-two fifty-three","Frequency": 56676},{"Key": "fifty-three fifty-three","Frequency": 56536}]}</p>
+</body>
+</html>
+
+$
+```
+
+GET totalkeys (get the total number of different key sent and registered by the tracker) :
+```
+$ bin/http-client-command G localhost 8080 /totalKeys
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 122
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>totalKeys:</h1>
+<p>1000005</p>
+</body>
+</html>
+
+$
+```
+
+GET time (Tracker's server time UTC) :
+```
+$ bin/http-client-command G localhost 8080 /time
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 210
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>time:</h1>
+<p>Current time is <b>2020-02-02 21:26:28</b> UTC. It is <b>1580678788</b> sec from epoch (01-01-1970).</p>
+</body>
+</html>
+
+$
+```
+
+GET shutdown (cleanly shutdown of Tracker's server, returning to OS prompt) :
+```
+$ bin/http-client-command G localhost 8080 /shutdown
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 135
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>shutdown:</h1>
+<p>Shutdown in progress.</p>
+</body>
+</html>
+
+$
+```
+Simultaneously on the server side, you will see the shutdown process:
+```
+Shutdown in progress.
+Server stopped.
+Exit tracker application.
+
+$ echo $?
+0
+$
+```
+As you can see the exit code is 0 (success).
+
+
+GET restart (cleanly restart of Tracker's server, returning to the caller script with code 129 indicating restart) :
+```
+$ bin/http-client-command G localhost 8080 /restart
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 133
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>restart:</h1>
+<p>Restart in progress.</p>
+</body>
+</html>
+
+$
+Simultaneously on the server side, you will see the shutdown process:
+```
+Restart in progress.
+Server stopped.
+Restarting tracker application.
+
+$ echo $?
+129
+$
+```
+As you can see the exit code is 128+1 (signal received is SIGHUP = 1) indicating to the caller shell script that perform some cleaning (restart) and then the executable must be called again (bin/tracker 0.0.0.0 8080 200).
+
+GET restore (optionally performed at startup, restoring the previously populated keys anf freqs info) :
+```
+$ bin/http-client-command G localhost 8080 /restore
+HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 125
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>restore:</h1>
+<p>Restored OK.</p>
+</body>
+</html>
+
+$
+```
+Or, if there was some trouble with the files keys.csv and frequencies.csv, the answer would be :
+```
+$ bin/http-client-command G localhost 8080 /restore
+HTTP/1.1 500 Internal Server Error
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 128
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>restore:</h1>
+<p>Restore FAILED.</p>
+</body>
+</html>
+
+$
+```
+
+#### Batch test of client/server performance
+	1) Start the server: 
+```
+$ export LD_LIBRARY_PATH=~/Proyecto/boost/lib
+bin/tracker 0.0.0.0 8080 200
+tracker pid is: 25865
+Server started.
+Accepting messages.
+```
+	2) Start the client batch test:  bin/client_benchmark 
+```
+$ bin/client_benchmark
+Test for POST request to http://localhost:8080/keySent
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 146
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>keySent:</h1>
+<p>reported key sent : XXX-XXXXXX-1A</p>
+</body>
+</html>
+
+It took 482 uSec.
+
+Test for POST request to http://localhost:8080/keySent
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 146
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>keySent:</h1>
+<p>reported key sent : XXX-XXXXXX-2B</p>
+</body>
+</html>
+
+It took 188 uSec.
+
+Test for POST request to http://localhost:8080/keySent
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 146
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>keySent:</h1>
+<p>reported key sent : XXX-XXXXXX-3C</p>
+</body>
+</html>
+
+It took 158 uSec.
+
+Test for POST request to http://localhost:8080/setKeyReportBaseSize
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 155
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>setKeyReportBaseSize:</h1>
+<p>Top key report size is now 15</p>
+</body>
+</html>
+
+It took 183 uSec.
+
+Test for POST request to http://localhost:8080/isHotKey
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 116
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>isHotKey:</h1>
+<p>NO</p>
+</body>
+</html>
+
+It took 142 uSec.
+
+Test for POST request to http://localhost:8080/keySent
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 145
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>keySent:</h1>
+<p>reported key sent : YYY-YYYYYY-4</p>
+</body>
+</html>
+
+It took 137 uSec.
+
+Test for POST request to http://localhost:8080/isHotKey
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 116
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>isHotKey:</h1>
+<p>NO</p>
+</body>
+</html>
+
+It took 158 uSec.
+
+Test for GET request to http://localhost:8080/getTopHotKeys
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 281
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>getTopHotKeys:</h1>
+<p>{[{"Key": "YYY-YYYYYY-4","Frequency": 1},{"Key": "XXX-XXXXXX-3C","Frequency": 1},{"Key": "XXX-XXXXXX-2B","Frequency": 1},{"Key": "XXX-XXXXXX-1A","Frequency": 1}]}</p>
+</body>
+</html>
+
+It took 183 uSec.
+
+Test for GET request to http://localhost:8080/totalKeys
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 116
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>totalKeys:</h1>
+<p>4</p>
+</body>
+</html>
+
+It took 108 uSec.
+
+Test for GET request to http://localhost:8080/getTopHotKeys
+Response content: HTTP/1.1 200 OK
+Server: Boost Beast
+Content-Type: text/html
+Content-Length: 281
+
+<html>
+<head>
+<title>Reply from Hotspot Tracker</title>
+</head>
+<body>
+<h1>getTopHotKeys:</h1>
+<p>{[{"Key": "YYY-YYYYYY-4","Frequency": 1},{"Key": "XXX-XXXXXX-3C","Frequency": 1},{"Key": "XXX-XXXXXX-2B","Frequency": 1},{"Key": "XXX-XXXXXX-1A","Frequency": 1}]}</p>
+</body>
+</html>
+
+It took 139 uSec.
+
+
+Stress Test for massive multiple requests.
+
+LOOP TEST TOOK 19243 mSec .
+
+$ 
+```
 
 ## Further builds
 ### Rebuild all for debugging session
