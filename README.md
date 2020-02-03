@@ -33,22 +33,21 @@ This creates two binaries, the `application` (./bin/tracker) and the `unit test`
 
 ### How to build just the tracker application (without running tests)
 $ **make release app**
-To START running the tracker application (with web server incorporated):
-$ bin/**tracker** IPfilter port threadQty(max 200)      example:
+To START running the tracker application (with web server incorporated):  
+$ bin/**tracker** IPfilter port threadQty(max 200)      example:  
 bin/tracker 0.0.0.0 8080 200
 
 
 ### How to build just the tests and run it
 $ **make release test** to build the automated test and run them in one shot.  
+Or  
+$ **make release webclient-cmd** to build the web command line client.  
 <br />
-Or
-$ **make release webclient-cmd** to build the web command line client.
 To run the client web request commands manually:
 bin/**http-client-command** <G|Ppayload> <IpAddress> <port> /command  
-<br />
-Or
-$ **make release webclient-test** to build the web client batch tests.
-To run the client batch test in one shot:
+Or  
+$ **make release webclient-test** to build the web client batch tests.  
+To run the client batch test in one shot:  
 bin/**client_benchmark**
 
 ### How to run the tests
@@ -70,7 +69,7 @@ http://localhost:8080/shutdown To perform a clean shutdown of the application.
 
 #### Batch Test using command line
 
-POST keySent :
+POST **keySent** :
 ```
 $ bin/http-client-command P"key text" 127.0.0.1 8080 /keySent
 HTTP/1.1 200 OK
@@ -91,7 +90,7 @@ Content-Length: 141
 $
 ```
 
-POST isHotKey :
+POST **isHotKey** :
 ```
 $ bin/http-client-command P"key text" localhost 8080 /isHotKey
 HTTP/1.1 200 OK
@@ -112,7 +111,7 @@ Content-Length: 116
 $
 ```
 
-POST setTopHotKeys or setKeyReportBaseSize (set base size to 12) :
+POST **setTopHotKeys** or **setKeyReportBaseSize** (set base size to 12) :
 $ bin/http-client-command P12 localhost 8080 /setTopHotKeys
 or
 ```
@@ -135,7 +134,7 @@ Content-Length: 155
 $
 ```
 
-GET getTopHotKeys (get a JSON with n top keys and its frequencies (12 keys in our example)) :
+GET **getTopHotKeys** (get a JSON with n top keys and its frequencies (12 keys in our example)) :
 ```
 $ bin/http-client-command G localhost 8080 /getTopHotKeys
 HTTP/1.1 200 OK
@@ -176,7 +175,7 @@ Content-Length: 608
 $
 ```
 
-GET totalkeys (get the total number of different key sent and registered by the tracker) :
+GET **totalkeys** (get the total number of different key sent and registered by the tracker) :
 ```
 $ bin/http-client-command G localhost 8080 /totalKeys
 HTTP/1.1 200 OK
@@ -197,7 +196,7 @@ Content-Length: 122
 $
 ```
 
-GET time (Tracker's server time UTC) :
+GET **time** (Tracker's server time UTC) :
 ```
 $ bin/http-client-command G localhost 8080 /time
 HTTP/1.1 200 OK
@@ -218,7 +217,7 @@ Content-Length: 210
 $
 ```
 
-GET shutdown (cleanly shutdown of Tracker's server, returning to OS prompt) :
+GET **shutdown** (cleanly shutdown of Tracker's server, returning to OS prompt) :
 ```
 $ bin/http-client-command G localhost 8080 /shutdown
 HTTP/1.1 200 OK
@@ -251,7 +250,7 @@ $
 As you can see the exit code is 0 (success).
 
 
-GET restart (cleanly restart of Tracker's server, returning to the caller script with code 129 indicating restart) :
+GET **restart** (cleanly restart of Tracker's server, returning to the caller script with code 129 indicating restart) :
 ```
 $ bin/http-client-command G localhost 8080 /restart
 HTTP/1.1 200 OK
@@ -281,9 +280,9 @@ $ echo $?
 129
 $
 ```
-As you can see the exit code is 128+1 (signal received is SIGHUP = 1) indicating to the caller shell script that perform some cleaning (restart) and then the executable must be called again (bin/tracker 0.0.0.0 8080 200).
+As you can see the exit code is 128+1 (signal received is SIGHUP = 1) indicating to the caller shell script, to perform some cleaning (restart) and then the executable must be called again (bin/tracker 0.0.0.0 8080 200).
 
-GET restore (optionally performed at startup, restoring the previously populated keys anf freqs info) :
+GET **restore** (optionally performed at startup, restoring the previously populated keys anf freqs info) :
 ```
 $ bin/http-client-command G localhost 8080 /restore
 HTTP/1.1 200 OK
@@ -527,10 +526,10 @@ $
 ## Further builds
 ### Rebuild all for debugging session
 The above build generates, by default, executables without debug information (intended for release/production). With the commands below, a debug build is performed. You can confirm this by checking the compiler output for each .cpp file and noticing "g++ -g3 -O0 ...". When you need to do a debug build having debug info, you have to type:  
-$make
-
-or
-
+$make  
+<br />
+or  
+<br />
 $make debug
 
 ### Partial builds
@@ -551,7 +550,7 @@ $ **make cleantest** Just cleans the object files related with the unit test, an
 
 ## Performance Issues
 ### Direct instertion to MapManager and direct insertion to the message queue (/keySent and /setTopHotKeys)
-For the time being the direct insertion over the maps (MapManager) throughput is aprox. 40MKeys in 8.6s (4.65 MKeys/sec), while using the original threaded queue (version 1.0.0) this decreases to 40MKeys in 36s (1.11 MKeys/sec).
+For the time being the direct insertion over the maps (MapManager) throughput is aprox. 40MKeys in 8.6s (4.65 MKeys/sec), while using the original threaded queue (version 1.0.0) this decreases to 40MKeys in 36s (1.11 MKeys/sec).  
 This poor performance is due to contention between the push() and pop() methods of this queue when performing mutex acquisition. The solution to this problem is to replace the queue implementation for another one inheriting from boost::lockfree::detail::queue . That is, a mutexless, lock-free implementation from the boost library. The aim of the former version 1 was to implement all standard code using just STL, but the philosophy was going to change in future versions, using libraries more suitable for this solution.  
 Now, starting from version 1.1.0 and afterwards, the queue is really implemented as a boost::lockfree::detail::queue , then the performance for direct access to the queue (/keySent or /setTopHotKeys) has been improved to 40MKeys in 15.5s (2.58 MKeys/sec).  
 The reference for all of these performance measurment was an i5-6260U CPU 1.8-2.6 GHz 16GiB DRAM computer, running Ubuntu 18.04.3 x86-64.
