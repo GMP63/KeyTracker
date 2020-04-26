@@ -1,0 +1,11 @@
+# Change List
+
+## 2.0.0
+Tiny boost "beast" web server incorporated to receive commands and print results via web page.
+
+## 1.1.0
+New ThreadedMessageQueue that inherits from boost::lockfree::queue<Message*> . This new queue has no lock synchronisation elements in its outer interface.
+Older ThreadedMessageQueue was deprecated and eliminated from this project.
+
+## 1.0.0
+Original version.
