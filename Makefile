@@ -1,5 +1,5 @@
 # The project name.
-PROJECT = 'Hotspot Tracker'
+PROJECT := 'Hotspot Tracker'
 
 # The "pure header" file list affecting all the source code.
 templates = Message
@@ -34,7 +34,7 @@ TARGET_TEST_OBJ = test/obj/$(TARGET_TEST).o
 TARGET_APP_SRC = src/$(TARGET_APP).cpp
 TARGET_TEST_SRC = test/src/$(TARGET_TEST).cpp
 
-#Dependent flags: Release Or Debug
+#Dependent flags: release or debug (rod), address sanitizer or not.
 #The selected target is release
 ifneq (,$(findstring release,$(MAKECMDGOALS)))
   rod = -g0 -O3 -ftree-parallelize-loops=8 -floop-interchange # -fopt-info-optimized
@@ -43,22 +43,27 @@ else
   rod = -g3 -O0
 endif
 
+ifneq (,$(findstring sanitizer,$(MAKECMDGOALS)))
+  sanity_flags = -fno-omit-frame-pointer -fsanitize=address
+endif
+
 # The compiler flags.
-CPPFLAGS = $(rod) -std=c++17 -Iinclude -I/home/guille/Proyecto/boost/include
-# The linker flags.
-LDFLAGS = -pthread -lstdc++ -lm
-LDFLAGS_BOOST = -L ~/Proyecto/boost/lib -pthread -lstdc++ -lm -lboost_filesystem
+CPPFLAGS = $(rod) $(sanity_flags) -Wno-trigraphs -fno-rtti -std=c++17 -Iinclude -I/home/guille/Proyecto/boost/include
+
+# The linker flags for each target.
+LDFLAGS = $(sanity_flags) -pthread -lstdc++
+LDFLAGS_APP = -L ~/Proyecto/boost/lib $(LDFLAGS) -lboost_filesystem
+LDFLAGS_TEST = -L ~/Proyecto/boost/lib $(LDFLAGS) -lm -lboost_filesystem
+
 # The create directory action
 make_dir = mkdir -p
 # The compile action
 compile = g++ $(CPPFLAGS) -c -o
 # The link action (including target)
 link = gcc -o
-# The linker trailing options (after objs and custom libs list)
-lnktrailopt = $(LDFLAGS)
-lnktrailopt_app = $(LDFLAGS_BOOST)
 
-.PHONY: release
+
+.PHONY: release sanitizer
 
 all: dirs app webclient-cmd webclient-test test
 
@@ -69,6 +74,12 @@ webclient-cmd: $(TARGET_CLIENT_CMD)
 webclient-test: $(TARGET_CLIENT_STRESS_TEST)
 
 test: test_dirs $(TARGET_TEST_BIN)
+
+help:
+	@echo ---------------------------------------------------------------------------------------
+	@echo "USAGE:"
+	@echo "make [release] [sanitizer] <app|webclient-cmd|webclient-test|test|clean|cleanapp|cleantest|cleanclient|help>"
+	@echo ---------------------------------------------------------------------------------------
 
 
 dirs:
@@ -85,7 +96,7 @@ test_dirs:
 $(TARGET_APP_BIN): $(TARGET_APP_OBJ) $(objs)
 	@echo ------------------------------------------------------------------------------
 	@echo 'Linking file: $(TARGET_APP)'
-	$(link) $(TARGET_APP_BIN) $(TARGET_APP_OBJ) $(objs) $(lnktrailopt_app)
+	$(link) $(TARGET_APP_BIN) $(TARGET_APP_OBJ) $(objs) $(LDFLAGS_APP)
 	@echo 'Finished linking: $(TARGET_APP)'
 	@echo 'BUILD SUCCEEDED'
 	@echo
@@ -103,7 +114,7 @@ test/obj/%.o: $(htpls) test/src/%.h test/src/%.cpp
 $(TARGET_CLIENT_CMD): $(client_cmd_obj)
 	@echo ------------------------------------------------------------------------
 	@echo 'Linking file: $(TARGET_CLIENT_CMD)'
-	$(link) $(TARGET_CLIENT_CMD) $(client_cmd_obj) $(lnktrailopt)
+	$(link) $(TARGET_CLIENT_CMD) $(client_cmd_obj) $(LDFLAGS)
 	@echo 'Finished linking: $(TARGET_CLIENT_CMD)'
 	@echo 'BUILD SUCCEEDED'
 	@echo 
@@ -111,7 +122,7 @@ $(TARGET_CLIENT_CMD): $(client_cmd_obj)
 $(TARGET_CLIENT_STRESS_TEST): $(client_stress_test_obj)
 	@echo ------------------------------------------------------------------------
 	@echo 'Linking file: $(TARGET_CLIENT_STRESS_TEST)'
-	$(link) $(TARGET_CLIENT_STRESS_TEST) $(client_stress_test_obj) $(lnktrailopt)
+	$(link) $(TARGET_CLIENT_STRESS_TEST) $(client_stress_test_obj) $(LDFLAGS)
 	@echo 'Finished linking: $(TARGET_CLIENT_STRESS_TEST)'
 	@echo 'BUILD SUCCEEDED'
 	@echo 
@@ -119,14 +130,14 @@ $(TARGET_CLIENT_STRESS_TEST): $(client_stress_test_obj)
 $(TARGET_TEST_BIN): $(TARGET_TEST_OBJ) $(test_objs) $(objs)
 	@echo ------------------------------------------------------------------------------
 	@echo 'Linking file: $(TARGET_TEST)'
-	$(link) $(TARGET_TEST_BIN) $(TARGET_TEST_OBJ) $(test_objs) $(objs) $(lnktrailopt_app)
+	$(link) $(TARGET_TEST_BIN) $(TARGET_TEST_OBJ) $(test_objs) $(objs) $(LDFLAGS_TEST)
 	@echo 'Finished linking: $(TARGET_TEST)'
 	@echo 'BUILD SUCCEEDED'
 
 	@echo
 	@echo Running tests...
 	@echo
-	$(TARGET_TEST_BIN)
+	(LD_LIBRARY_PATH=~/Proyecto/boost/lib $(TARGET_TEST_BIN))
 	@echo
 
 $(TARGET_TEST_OBJ): $(htpls) $(hdrs) $(test_hdrs) $(TARGET_TEST_SRC) $(test_srcs)
@@ -134,31 +145,31 @@ $(TARGET_TEST_OBJ): $(htpls) $(hdrs) $(test_hdrs) $(TARGET_TEST_SRC) $(test_srcs
 
 obj/client/%.o: src/client/%.cpp
 	@echo ------------------------------------------------------------------------------
-	@echo 'Building file: $<'
+	@echo 'Compiling file: $<'
 	$(compile) $@ $<
 	@echo 'Finished building: $<'
 
 obj/timer/%.o: src/timer/%.cpp
 	@echo ------------------------------------------------------------------------------
-	@echo 'Building file: $<'
+	@echo 'Compiling file: $<'
 	$(compile) $@ $<
 	@echo 'Finished building: $<'
 
 obj/web/%.o: src/web/%.cpp
 	@echo ------------------------------------------------------------------------------
-	@echo 'Building file: $<'
+	@echo 'Compiling file: $<'
 	$(compile) $@ $<
 	@echo 'Finished building: $<'
 
 obj/%.o: src/%.cpp
 	@echo ------------------------------------------------------------------------------
-	@echo 'Building file: $<'
+	@echo 'Compiling file: $<'
 	$(compile) $@ $<
 	@echo 'Finished building: $<'
 
 test/obj/%.o: test/src/%.cpp
 	@echo ------------------------------------------------------------------------------
-	@echo 'Building file: $<'
+	@echo 'Compiling file: $<'
 	$(compile) $@ $<
 	@echo 'Finished building: $<'
 

@@ -1,5 +1,11 @@
 # Change List
 
+## 2.0.1
+New independent target "sanitizer" to add the compilation/linking flags to run executables with built in address sanitizer routines.
+This special build should be used only for testing and debugging, due these flags slow down heavily the execution.
+
+Improved Makefile and bug fix: The test can now be started automatically after "make test" because the variable LD_LIBRARY_PATH is set to ~/Proyecto/boost/lib
+
 ## 2.0.0
 Tiny boost "beast" web server incorporated to receive commands and print results via web page.
 
