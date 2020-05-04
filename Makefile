@@ -48,7 +48,7 @@ ifneq (,$(findstring sanitizer,$(MAKECMDGOALS)))
 endif
 
 # The compiler flags.
-CPPFLAGS = $(rod) $(sanity_flags) -Wno-trigraphs -fno-rtti -std=c++17 -Iinclude -I/home/guille/Proyecto/boost/include
+CPPFLAGS = $(rod) $(sanity_flags) -Wall -Wextra -Wpedantic -Wno-trigraphs -fno-rtti -std=c++17 -Iinclude -I/home/guille/Proyecto/boost/include
 
 # The linker flags for each target.
 LDFLAGS = $(sanity_flags) -pthread -lstdc++

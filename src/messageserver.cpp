@@ -22,12 +22,12 @@ MessageServer*  MessageServer::ms_pInstance(nullptr);
 
 MessageServer::MessageServer( IMapManager* mgr, IMessageQueue* queue, BackupManager* bkp,
                               ICommunicationServer* comsrv, Verbosity v /* = 0 */ )
-    : m_pMapManager(mgr)
+    : m_verbosity(v)
+    , m_pMapManager(mgr)
     , m_pMessageQueue(queue)
     , m_pBackupManager(bkp)
     , m_pCommServer(comsrv)
     , m_topMessageServerFunctor(onMessage)
-    , m_verbosity(v)
 {
     ms_pInstance = this;
 

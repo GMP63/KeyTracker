@@ -25,9 +25,9 @@ public:
     static const int firstPopLatency; // = FIRST_POPING_LATENCY;
 
     ThreadedMessageQueue()
-        : BLFMessageQueue(10), m_consumer(nullptr), m_running(false) {}
+        : BLFMessageQueue(10), m_running(false), m_consumer(nullptr){}
     ThreadedMessageQueue(size_t initialSize)
-        : BLFMessageQueue(initialSize), m_consumer(nullptr), m_running(false) {}
+        : BLFMessageQueue(initialSize), m_running(false), m_consumer(nullptr) {}
 
     ~ThreadedMessageQueue();
 

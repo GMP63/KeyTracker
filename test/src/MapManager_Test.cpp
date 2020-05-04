@@ -50,7 +50,7 @@ size_t mapmanager_rankingTest(MapManager& mgr)
               << "==================" << "\n"
               << "Key            , Frequency\n";
 
-    for(int i = 0; i < vecResults.size(); i++)
+    for(unsigned int i = 0; i < unsigned(vecResults.size()); i++)
     {
         std::cout << vecResults[i].key << ", " << vecResults[i].frequency << '\n';
     }
@@ -62,18 +62,17 @@ size_t mapmanager_rankingTest(MapManager& mgr)
 void mapmanager_fullSequentialTest(TEST_REF, MapManager& mgr)
 {
     mapmanager_massiveDirectKeyInsertion(mgr);
-    EXPECT_LE(mgr.getTotalKeyNumber(), 40000);
+    EXPECT_LE(mgr.getTotalKeyNumber(), 40000U);
 
     mapmanager_backupTest(mgr);
 
     size_t rankingSize = mapmanager_rankingTest(mgr);
     EXPECT_EQ(rankingSize, mgr.getTopKeyReportBaseSize());
-    EXPECT_EQ(mgr.getTopKeyReportMaxSize(), 20);
+    EXPECT_EQ(mgr.getTopKeyReportMaxSize(), 20U);
 }
 
 void mapmanager_concurrencyTest(MapManager& mgr, bool directWriteTest)
 {
-    MapManager& m = mgr;
     auto searchWords =  [] (MapManager& mgr, const char* k) {
         clock_t start = clock();
         bool b = mgr.isHotKey(k);
@@ -110,8 +109,8 @@ void mapmanager_functionalTest(TEST_REF)
 {
     MapManager m(12, 24);
     EXPECT_Z(m.getTopKeyReportActualSize());
-    EXPECT_EQ(m.getTopKeyReportBaseSize(), 12);
-    EXPECT_EQ(m.getTopKeyReportMaxSize(), 24);
+    EXPECT_EQ(m.getTopKeyReportBaseSize(), 12U);
+    EXPECT_EQ(m.getTopKeyReportMaxSize(), 24U);
     m.addOrUpdateKey("AAAAAAAAAA", "aaa.com", 1);
     m.addOrUpdateKey("BBBBBBBBBB", "bbb.com", 2);
     m.addOrUpdateKey("AAAAAAAAAA", "aaa.com", 11);
@@ -165,13 +164,13 @@ void mapmanager_functionalTest(TEST_REF)
     EXPECT_TRUE(m.isHotKey("BBBBBBBBBB"));
     EXPECT_TRUE(m.isHotKey("CCCCCCCCCC"));
     EXPECT_TRUE(m.isHotKey("DDDDDDDDDD"));
-    EXPECT_EQ(m.getTotalKeyNumber(), 26);
+    EXPECT_EQ(m.getTotalKeyNumber(), 26U);
 
     KeyFrequencyVector v;
 
     m.getTopHotkeys(v);
-    EXPECT_EQ(m.getTopKeyReportActualSize(), 24);
-    EXPECT_EQ(v.size(), 12);
+    EXPECT_EQ(m.getTopKeyReportActualSize(), 24U);
+    EXPECT_EQ(v.size(), 12U);
     EXPECT_EQ(v[0].key, std::string("AAAAAAAAAA"));
     EXPECT_EQ(v[1].key, std::string("BBBBBBBBBB"));
     EXPECT_EQ(v[2].key, std::string("CCCCCCCCCC"));

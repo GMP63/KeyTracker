@@ -42,7 +42,7 @@ void waitForQueueEmpty(ThreadedMessageQueue& q)
     std::cout << std::endl;
 }
 
-void MixManagerQueueTests(TEST_REF, MapManager& m, ThreadedMessageQueue& q)
+void MixManagerQueueTests(MapManager& m, ThreadedMessageQueue& q)
 {
     std::cout << "\nMessaging map manager through message queue. Test starting ...\n";
     queue_KeyBurst(q);

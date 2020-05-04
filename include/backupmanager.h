@@ -16,8 +16,8 @@ public:
     BackupManager() = delete;
     BackupManager(IMapManager* mgr, unsigned int term = s_backupTerm, Verbosity v = 0)
         : m_verbosity(v)
-        , m_mapMgr(mgr)
         , m_backupTerm(term)
+        , m_mapMgr(mgr)
         , m_timer(1000 * term, true)
     {}
 

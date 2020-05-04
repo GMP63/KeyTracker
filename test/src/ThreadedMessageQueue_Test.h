@@ -8,5 +8,5 @@
 #include "MapManager.h"
 #include "ThreadedMessageQueue.h"
 
-void MixManagerQueueTests(TEST_REF, MapManager& m, ThreadedMessageQueue& q);
+void MixManagerQueueTests(MapManager& m, ThreadedMessageQueue& q);
 
