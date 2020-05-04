@@ -32,12 +32,12 @@ public:
         : m_str1(s1), m_str2(s2), m_cmd(c), m_nbyte(u8), m_nshort(u16), m_number(u32) {}
 
     Message(const Message& m)
-        : m_str1(m.m_str1), m_str2(m.m_str2), m_cmd(m.m_cmd),
-          m_nbyte(m.m_nbyte), m_nshort(m.m_nshort), m_number(m.m_number) {}
+        : m_str1(m.m_str1), m_str2(m.m_str2), m_cmd(m.m_cmd)
+        , m_nbyte(m.m_nbyte), m_nshort(m.m_nshort), m_number(m.m_number) {}
 
     Message(const Message&& m)
-        : m_str1(std::move(m.m_str1)), m_str2(std::move(m.m_str2)), m_cmd(m.m_cmd),
-          m_nbyte(m.m_nbyte), m_nshort(m.m_nshort), m_number(m.m_number) {}
+        : m_str1(std::move(m.m_str1)), m_str2(std::move(m.m_str2)), m_cmd(m.m_cmd)
+        , m_nbyte(m.m_nbyte), m_nshort(m.m_nshort), m_number(m.m_number) {}
 
 //  ~Message() {m_str1.clear(); m_str2.clear();}
 
