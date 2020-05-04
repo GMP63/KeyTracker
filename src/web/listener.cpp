@@ -11,10 +11,10 @@ using tcp = boost::asio::ip::tcp;  // from <boost/asio/ip/tcp.hpp>
 
 Listener::Listener( net::ip::address address, unsigned short port,
                     unsigned short threadQty, Verbosity v /* = 0 */ )
-    : m_ioc(threadQty)
+    : m_verbosity(v)
+    , m_ioc(threadQty)
     , m_acceptor(m_ioc, {address, port})
     , m_threadQty(threadQty)
-    , m_verbosity(v)
 {
 /* // Not reusing socket address (port) by now.
         bsys_error_code ec;

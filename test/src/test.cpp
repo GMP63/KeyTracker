@@ -54,7 +54,7 @@ void keyInsertion(MapManager* pMgr, ThreadedMessageQueue* pMtq, bool direct, siz
     std::string sKey;
     sKey.reserve(50);
     start = clock();
-    for(int i = 0, j = 0; i < burstSize / 2; i++)
+    for(unsigned int i = 0, j = 0; i < burstSize / 2; i++)
     {
         unsigned idx0 = genRandomNumbers[j++];
         unsigned idx1 = genRandomNumbers[j++];
@@ -84,7 +84,7 @@ void keyInsertion(MapManager* pMgr, ThreadedMessageQueue* pMtq, bool direct, siz
 }
 
 
-int main(int argc, char* argv[])
+int main()
 {
     START_TESTS;
 
@@ -97,7 +97,7 @@ int main(int argc, char* argv[])
     MapManagerTests(TEST, m);
     q.setConsumer(&m);
     q.start();
-    MixManagerQueueTests(TEST, m, q);
+    MixManagerQueueTests(m, q);
     PRINT_RESULTS(std::cout);
 
     // global common object destruction here.

@@ -289,9 +289,7 @@ bool MapManager::restoreRequest(const std::string& keyFilename, const std::strin
     while (!inFreqFile.eof())
     {
         std::getline(inFreqFile, sOrderNum, ms_FieldSeparator);
-        int no = inFreqFile.gcount();
         std::getline(inFreqFile, sKey);
-        int nk = inFreqFile.gcount();
         if (inFreqFile.eof())
             break;
 
