@@ -291,7 +291,7 @@ void tryConnect(net::io_context & ioc, beast::tcp_stream & stream, int step)
     // Try to establish the TCP connection
     if (! connect(ioc, stream))
     {
-        std::cerr << "Step #" << ": Couldn't connect. Abort!\n"  << std::endl;
+        std::cerr << "Step #" << step << ": Couldn't connect. Abort!\n"  << std::endl;
         exit(EXIT_FAILURE);
     }
 }

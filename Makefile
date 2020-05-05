@@ -78,7 +78,7 @@ test: test_dirs $(TARGET_TEST_BIN)
 help:
 	@echo ---------------------------------------------------------------------------------------
 	@echo "USAGE:"
-	@echo "make [release] [sanitizer] <app|webclient-cmd|webclient-test|test|clean|cleanapp|cleantest|cleanclient|help>"
+	@echo "make [release] [sanitizer] <app|webclient-cmd|webclient-test|test|all|clean|cleanapp|cleantest|cleanclient|help>"
 	@echo ---------------------------------------------------------------------------------------
 
 
@@ -146,7 +146,7 @@ $(TARGET_TEST_OBJ): $(htpls) $(hdrs) $(test_hdrs) $(TARGET_TEST_SRC) $(test_srcs
 obj/client/%.o: src/client/%.cpp
 	@echo ------------------------------------------------------------------------------
 	@echo 'Compiling file: $<'
-	$(compile) $@ $<
+	g++ $(CPPFLAGS) -Wno-unused-parameter -c -o $@ $<
 	@echo 'Finished building: $<'
 
 obj/timer/%.o: src/timer/%.cpp
