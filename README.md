@@ -1,5 +1,32 @@
 # MediaMath's Coding Challenge: KeyTracker
 Mediamath Coding Challenge exercise about string key tracking:
+
+## Table of Contents
+- [MediaMath's Coding Challenge: KeyTracker](#mediamaths-coding-challenge-keytracker)
+	- [Table of Contents](#table-of-contents)
+	- [Overview](#overview)
+	- [Build and run](#build-and-run)
+		- [Target List](#target-list)
+		- [How to build all the tracker](#how-to-build-all-the-tracker)
+		- [How to build just the tracker application (without running tests)](#how-to-build-just-the-tracker-application-without-running-tests)
+		- [How to build just the tests and run it](#how-to-build-just-the-tests-and-run-it)
+		- [How to run the tests](#how-to-run-the-tests)
+		- [Web Tests since version 2.0.0](#web-tests-since-version-200)
+			- [Test command by command with a browser](#test-command-by-command-with-a-browser)
+			- [Batch Test using command line](#batch-test-using-command-line)
+			- [Batch test of client/server performance](#batch-test-of-clientserver-performance)
+	- [Further builds](#further-builds)
+		- [Rebuild all for debugging session](#rebuild-all-for-debugging-session)
+		- [Partial builds](#partial-builds)
+		- [Sanitizer builds](#sanitizer-builds)
+		- [Cleaning object files and executables](#cleaning-object-files-and-executables)
+	- [Performance Issues](#performance-issues)
+		- [Direct instertion to MapManager and direct insertion to the message queue (/keySent and /setTopHotKeys)](#direct-instertion-to-mapmanager-and-direct-insertion-to-the-message-queue-keysent-and-settophotkeys)
+		- [Insertion via web client](#insertion-via-web-client)
+
+## Overview
+The purpose of this simple excercise is to provide a way to keep track of different key values (character strings) sent to different key servers in a cloud partitioned topology. Therefore, using this tracker, a better understanding of which are the most repeated keys (hot keys) can help design a routing algorithm to the servers of those keys (hotspots) that dominate the traffic.
+
 ```
 The Problem:
 
@@ -20,10 +47,19 @@ A load-balancer application redistributes inbound requests across a cluster of b
  You can implement your design in either C++ or Golang.
 ```
 
-## Overview
-The purpose of this simple excercise is to provide a way to keep track of different key values (character strings) sent to different key servers in a cloud partitioned topology. Therefore, using this tracker, a better understanding of which are the most repeated keys (hot keys) can help design a routing algorithm to the servers of those keys (hotspots) that dominate the traffic.
-
 ## Build and run
+
+### Target List
+At console line if you enter **make help** then a minimal list of available targets is presented:
+```
+$ make help
+---------------------------------------------------------------------------------------
+USAGE:
+make [release] [sanitizer] <app|webclient-cmd|webclient-test|test|all|clean|cleanapp|cleantest|cleanclient|help>
+---------------------------------------------------------------------------------------
+$
+```
+
 ### How to build all the tracker
 Download this repo. In its root directory you will see a Makefile. Positioned inside this root directory (project root folder), open a terminal and then type the following:
 $ **make release all**
@@ -526,20 +562,29 @@ $
 ## Further builds
 ### Rebuild all for debugging session
 The above build generates, by default, executables without debug information (intended for release/production). With the commands below, a debug build is performed. You can confirm this by checking the compiler output for each .cpp file and noticing "g++ -g3 -O0 ...". When you need to do a debug build having debug info, you have to type:  
+<br />
 $make  
 <br />
-or  
-<br />
-$make debug
 
 ### Partial builds
-$ **make app**  Builds only newer files to produce the application : ./bin/tracker
+$ **make app**  Builds only newer files in debug, only to produce the application : ./bin/tracker
 
-$ **make test** Builds only newer files to produce the application : ./test/bin/test
+$ **make test** Builds only newer files in debug, only to produce the unit tests : ./test/bin/test
 
-$ **make all** Builds everything in debug (application and test). It is the same as just typing **make**.
+$ **make all** Builds everything in debug (application and tests). It is the same as just typing **make**.
 
-$ **make release all** Builds everything in release (application and test). Note that make release does not trigger anything as "release" is not a file system target.
+$ **make release all** Builds everything in release (application and tests). Note that make release does not trigger anything as "release" is not a file system target.
+
+### Sanitizer builds
+$ **make sanitizer app** Builds only newer files in debug, inserting sanitizer checking routines inside: ./bin/tracker
+
+$ **make sanitizer test** Builds only newer files in debug, inserting sanitizer checking routines inside : ./test/bin/test
+
+$ **make sanitizer all** Builds everything in debug, inserting sanitizer checking routines inside both executables.
+
+$ **make sanitizer release all** Builds everything in release (application and test). Note that make release does not trigger anything as "release" is not a file system target.
+
+**Note**: Inserting address sanitizer routines slows down the resulting executable by twice or more. This degrades time execution both of the application and the tests. This option should only be used when testing for memory leaks or similar. Also, the address sanitizer doesn't get along quite well with boost::beast libraries, so false positives might arise when checking the client stress test.
 
 ### Cleaning object files and executables
 $ **make clean** Erases all the object and executables previosly built, as a prior step to building from scratch.
