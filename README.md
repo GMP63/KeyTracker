@@ -1,8 +1,8 @@
-# MediaMath's Coding Challenge: KeyTracker
-Mediamath Coding Challenge exercise about string key tracking:
+# Coding Challenge: KeyTracker
+Coding Challenge exercise about string key tracking:
 
 ## Table of Contents
-- [MediaMath's Coding Challenge: KeyTracker](#mediamaths-coding-challenge-keytracker)
+- [Coding Challenge: KeyTracker](#mediamaths-coding-challenge-keytracker)
 	- [Table of Contents](#table-of-contents)
 	- [Overview](#overview)
 	- [Build and run](#build-and-run)
