@@ -1,7 +1,10 @@
 # Change List
 
 ## 2.0.2
-Minor changes to compile more strictly without any warning. C flags added: -Wall -Wextra -Wpedantic
+*) Minor changes to compile more strictly without any warning. C flags added: -Wall -Wextra -Wpedantic .
+*) Address sanitizer optative flags (-fno-omit-frame-pointer -fsanitize=address) if target "sanitizer" is included in command line.
+*) Help target prints concise list of targets avalible:
+   $ make help
 
 ## 2.0.1
 New independent phony target "sanitizer" to add the compilation/linking flags to run executables with built in address sanitizer routines.
